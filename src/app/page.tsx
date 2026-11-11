@@ -1,4 +1,4 @@
-import { authenticate } from "@/app/auth/actions";
+import { authenticate } from "@/app/api/auth/[...nextauth]/actions";
 
 export default function HomePage() {
   return (
