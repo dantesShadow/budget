@@ -1,0 +1,27 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "Next.js Dev container",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+
+	"features": {
+		"ghcr.io/devcontainers/features/git-lfs": {}
+	},
+
+	"forwardPorts": [3000],
+
+	"postCreateCommand": "npm install",
+
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"esbenp.prettier-vscode",
+				"dbaeumer.vscode-eslint",
+				"bradls.vscode-tailwindcss"
+			]
+		}
+	},
+
+	"remoteUser": "node"
+}
