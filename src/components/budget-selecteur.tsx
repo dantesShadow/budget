@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, ChevronDown } from "lucide-react";
+import { Calendar, ChevronDown, Plus } from "lucide-react";
 import type { Budget } from "@/models/budget";
+import NewBudgetModal from "@/components/NewBudgetModal";
 
 interface BudgetSelecteurProps {
   onPeriodNameChange?: (periodName: string) => void;
@@ -29,6 +30,7 @@ export default function BudgetSelecteur({
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [selectedBudgetId, setSelectedBudgetId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,38 +82,61 @@ export default function BudgetSelecteur({
     );
   }
 
+  function handleBudgetCreated(budget: Budget) {
+    setBudgets((currentBudgets) => [...currentBudgets, budget]);
+    setSelectedBudgetId(budget.id);
+    onPeriodNameChange?.(budget.periodName);
+    setIsModalOpen(false);
+  }
+
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-      <div className="flex items-center space-x-3 w-full sm:w-auto">
-        <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
-          <Calendar className="w-5 h-5" />
-        </div>
-        <div className="relative flex-1 sm:flex-none">
-          <select
-            value={selectedBudgetId}
-            onChange={(event) => handleBudgetChange(event.target.value)}
-            disabled={isLoading || budgets.length === 0}
-            className="w-full sm:w-64 appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+    <>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <div className="flex items-center space-x-3 w-full sm:w-auto">
+          <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
+            <Calendar className="w-5 h-5" />
+          </div>
+          <div className="relative flex-1 sm:flex-none">
+            <select
+              value={selectedBudgetId}
+              onChange={(event) => handleBudgetChange(event.target.value)}
+              disabled={isLoading || budgets.length === 0}
+              className="w-full sm:w-64 appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {budgets.length === 0 && (
+                <option value="">
+                  {isLoading ? "Chargement des budgets..." : "Aucun budget disponible"}
+                </option>
+              )}
+              {budgets.map((budget) => (
+                <option key={budget.id} value={budget.id}>
+                  {budget.periodName}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-900/30"
           >
-            {budgets.length === 0 && (
-              <option value="">
-                {isLoading ? "Chargement des budgets..." : "Aucun budget disponible"}
-              </option>
-            )}
-            {budgets.map((budget) => (
-              <option key={budget.id} value={budget.id}>
-                {budget.periodName}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Plus className="w-4 h-4" />
+            <span>Nouvelle Période</span>
+          </button>
         </div>
+        {error && (
+          <p role="alert" className="text-sm text-red-400">
+            {error}
+          </p>
+        )}
       </div>
-      {error && (
-        <p role="alert" className="text-sm text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
+      <NewBudgetModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleBudgetCreated}
+      />
+    </>
   );
 }
