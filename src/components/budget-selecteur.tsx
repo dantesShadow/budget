@@ -6,7 +6,7 @@ import type { Budget } from "@/models/budget";
 import NewBudgetModal from "@/components/NewBudgetModal";
 
 interface BudgetSelecteurProps {
-  onPeriodNameChange?: (periodName: string) => void;
+  onBudgetChange?: (budget: Budget) => void;
 }
 
 function isBudgetList(value: unknown): value is Budget[] {
@@ -25,7 +25,7 @@ function isBudgetList(value: unknown): value is Budget[] {
 }
 
 export default function BudgetSelecteur({
-  onPeriodNameChange,
+  onBudgetChange,
 }: BudgetSelecteurProps) {
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [selectedBudgetId, setSelectedBudgetId] = useState("");
@@ -51,7 +51,7 @@ export default function BudgetSelecteur({
         if (isCurrent) {
           setBudgets(data);
           setSelectedBudgetId(data[0]?.id ?? "");
-          onPeriodNameChange?.(data[0]?.periodName ?? "");
+          onBudgetChange?.(data[0]);
         }
       } catch (error) {
         if (isCurrent) {
@@ -73,19 +73,19 @@ export default function BudgetSelecteur({
     return () => {
       isCurrent = false;
     };
-  }, [onPeriodNameChange]);
+  }, [onBudgetChange]);
 
   function handleBudgetChange(budgetId: string) {
     setSelectedBudgetId(budgetId);
-    onPeriodNameChange?.(
-      budgets.find((budget) => budget.id === budgetId)?.periodName ?? ""
+    onBudgetChange?.(
+      budgets.find((budget) => budget.id === budgetId) ?? budgets[0]
     );
   }
 
   function handleBudgetCreated(budget: Budget) {
     setBudgets((currentBudgets) => [...currentBudgets, budget]);
     setSelectedBudgetId(budget.id);
-    onPeriodNameChange?.(budget.periodName);
+    onBudgetChange?.(budget);
     setIsModalOpen(false);
   }
 
