@@ -64,6 +64,7 @@ export default function IncomesList({
     });
     setSrc('');
     setAmt('');
+    setNote('');
   };
 
   const handleSourceChange: ChangeEventHandler<HTMLInputElement> = (e) => {
