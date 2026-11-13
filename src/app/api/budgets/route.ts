@@ -8,7 +8,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function normalizeIncomes(value: unknown): PosteBudgetaire[] {
+function normalizePoste(value: unknown): PosteBudgetaire[] {
   if (!Array.isArray(value)) {
     return [];
   }
@@ -52,15 +52,21 @@ export async function GET() {
         const storedIncomes = Array.isArray(budget.incomes)
           ? budget.incomes
           : [];
-        const incomes = normalizeIncomes(storedIncomes);
+        const incomes = normalizePoste(storedIncomes);
+
+        const storedExpenses = Array.isArray(budget.expenses)
+          ? budget.expenses
+          : [];
+        const expenses = normalizePoste(storedExpenses);
+
         const needsUuidMigration = storedIncomes.some(
           (income, index) => !isRecord(income) || income.uuid !== incomes[index].uuid
         );
 
         if (needsUuidMigration) {
           await collection.updateOne(
-            { _id: budget._id, incomes: storedIncomes },
-            { $set: { incomes } }
+            { _id: budget._id, incomes: storedIncomes, expenses: storedExpenses },
+            { $set: { incomes, expenses } }
           );
         }
 
@@ -70,6 +76,7 @@ export async function GET() {
           initialBalance:
             typeof budget.initialBalance === "number" ? budget.initialBalance : 0,
           incomes,
+          expenses,
         } satisfies Budget;
       })
     )
@@ -120,6 +127,7 @@ export async function POST(request: Request) {
     periodName,
     initialBalance,
     incomes: [],
+    expenses: [],
   };
 
   return Response.json(budget, { status: 201 });
