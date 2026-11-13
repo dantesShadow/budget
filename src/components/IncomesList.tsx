@@ -15,37 +15,7 @@ type IncomesListProps = {
   onDeleteIncome: (uuid: string) => void;
 };
 
-export function IncomeItem({
-  income,
-  onDeleteIncome,
-}: {
-  income: PosteBudgetaire;
-  onDeleteIncome: (uuid: string) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
-      <div>
-          <p className="text-sm font-medium text-slate-200">{income.source}</p>
-          {income.note && <p className="text-xs text-amber-400/90 italic">{income.note}</p>}
-      </div>
-      <div className="flex items-center space-x-3">
-        <span className="font-semibold text-emerald-400 text-sm">
-          +{Number(income.plannedAmount ?? 0).toFixed(2)} $
-        </span>
-        <button
-          type="button"
-          onClick={() => onDeleteIncome(income.uuid)}
-          aria-label={`Supprimer ${income.source}`}
-          className="text-slate-500 hover:text-rose-400"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-export function IncomesItem2({
+export function IncomesItem({
   income,
   onDeleteIncome,
   onUpdateReelAmount,
@@ -62,8 +32,8 @@ export function IncomesItem2({
 
   return (
     <div key={income.uuid} className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 items-center space-x-2.5">
           <button
             type="button"
             title={isFull ? 'Marquer comme non reçu' : 'Marquer comme reçu en entier'}
@@ -72,8 +42,11 @@ export function IncomesItem2({
           >
             {isFull ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
           </button>
-          <div>
-            <span className={`text-sm font-medium ${isFull ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+          <div className="min-w-0 flex-1">
+            <span
+              title={income.source}
+              className={`line-clamp-2 text-sm font-medium ${isFull ? 'line-through text-slate-500' : 'text-slate-200'}`}
+            >
               {income.source}
             </span>
             {isPartial && (
@@ -84,8 +57,8 @@ export function IncomesItem2({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
+        <div className="flex shrink-0 items-center space-x-2">
+          <div className="flex h-8 shrink-0 items-center whitespace-nowrap bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
             <input
               type="number"
               step="0.01"
@@ -93,9 +66,9 @@ export function IncomesItem2({
               value={income.reelAmount === 0 ? '' : income.reelAmount}
               placeholder="0.00"
               onChange={(e) => onUpdateReelAmount(income.uuid, parseFloat(e.target.value) || 0)}
-              className="w-16 bg-transparent text-right text-xs font-semibold text-emerald-400 focus:outline-none"
+              className="w-12 shrink-0 bg-transparent text-right text-xs font-semibold text-emerald-400 focus:outline-none"
             />
-            <span className="text-xs text-slate-500 ml-1">/ {expectedAmount.toFixed(2)}$</span>
+            <span className="ml-1 whitespace-nowrap text-xs text-slate-500">/ {expectedAmount.toFixed(2)}$</span>
           </div>
           <button type="button" onClick={() => onDeleteIncome(income.uuid)} className="text-slate-600 hover:text-rose-400">
             <Trash2 className="w-4 h-4" />
@@ -167,7 +140,7 @@ export default function IncomesList({
 
       <div className="space-y-2 mb-4">
         {incomes.map((income) => (
-          <IncomesItem2
+          <IncomesItem
             key={income.uuid}
             income={income}
             onUpdateReelAmount={onUpdateReelAmount}
@@ -183,7 +156,7 @@ export default function IncomesList({
             placeholder="Source"
             value={src}
             onChange={handleSourceChange}
-            className="w-90 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
+            className="min-w-0 flex-[2] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
           />
           <input
             type="number"
@@ -191,7 +164,7 @@ export default function IncomesList({
             placeholder="Montant Planifié"
             value={plannedAmount}
             onChange={handlePlannedAmountChange}
-            className="w-24 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
+            className="min-w-0 flex-[1] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
           />
 
           <input
@@ -199,7 +172,7 @@ export default function IncomesList({
             placeholder="Note"
             value={note}
             onChange={handleNoteChange}
-            className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
+            className="min-w-0 flex-[3] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
           />
         </div>
         <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-sm flex items-center justify-center space-x-1">
