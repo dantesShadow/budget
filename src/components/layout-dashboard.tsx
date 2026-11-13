@@ -68,6 +68,17 @@ export default function LayoutDashboard() {
     );
   }, [persistIncomes]);
 
+  const onUpdateReelAmount = useCallback((incomeUuid: string, amount: number) => {
+    const currentBudget = budgetRef.current;
+    if (!currentBudget) return;
+
+    persistIncomes(
+      currentBudget.incomes.map((income) =>
+        income.uuid === incomeUuid ? { ...income, reelAmount: amount } : income,
+      ),
+    );
+  }, [persistIncomes]);
+
   return (
     <div className="space-y-6">
       <BudgetSelecteur onBudgetChange={handleBudgetChange} />
@@ -75,6 +86,7 @@ export default function LayoutDashboard() {
         <IncomesList
           incomes={budget.incomes}
           onAddIncome={onAddIncome}
+          onUpdateReelAmount={onUpdateReelAmount}
           onDeleteIncome={onDeleteIncome}
         />
       )}

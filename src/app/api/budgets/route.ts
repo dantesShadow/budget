@@ -28,9 +28,13 @@ function normalizeIncomes(value: unknown): PosteBudgetaire[] {
     return {
       uuid,
       source: typeof income.source === "string" ? income.source : "",
-      amount:
-        typeof income.amount === "number" && Number.isFinite(income.amount)
-          ? income.amount
+      plannedAmount:
+        typeof income.plannedAmount === "number" && Number.isFinite(income.plannedAmount)
+          ? income.plannedAmount
+          : 0,
+      reelAmount:
+        typeof income.reelAmount === "number" && Number.isFinite(income.reelAmount)
+          ? income.reelAmount
           : 0,
       note: typeof income.note === "string" ? income.note : "",
     };

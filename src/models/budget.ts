@@ -8,6 +8,7 @@ export interface Budget {
 export interface PosteBudgetaire {
     uuid: string;
     source: string;
-    amount?: number;
+    plannedAmount?: number;
+    reelAmount?: number;
     note?: string;
 }

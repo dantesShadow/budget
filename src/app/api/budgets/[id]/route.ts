@@ -24,9 +24,12 @@ function parseIncomes(value: unknown): PosteBudgetaire[] | null {
       ("uuid" in income &&
         (typeof income.uuid !== "string" ||
           !UUID_PATTERN.test(income.uuid))) ||
-      ("amount" in income &&
-        (typeof income.amount !== "number" ||
-          !Number.isFinite(income.amount))) ||
+      ("plannedAmount" in income &&
+        (typeof income.plannedAmount !== "number" ||
+          !Number.isFinite(income.plannedAmount))) ||
+      ("reelAmount" in income &&
+        (typeof income.reelAmount !== "number" ||
+          !Number.isFinite(income.reelAmount))) ||
       ("note" in income && typeof income.note !== "string")
     ) {
       return null;
@@ -42,7 +45,8 @@ function parseIncomes(value: unknown): PosteBudgetaire[] | null {
     incomes.push({
       uuid,
       source: income.source,
-      ...(typeof income.amount === "number" ? { amount: income.amount } : { amount: 0 }),
+      ...(typeof income.plannedAmount === "number" ? { plannedAmount: income.plannedAmount } : { plannedAmount: 0 }),
+      ...(typeof income.reelAmount === "number" ? { reelAmount: income.reelAmount } : { reelAmount: 0 }),
       ...(typeof income.note === "string" ? { note: income.note } : { note: "" }),
     });
   }
@@ -162,7 +166,8 @@ export async function PUT(
               ? income.uuid
               : crypto.randomUUID(),
           source: income.source,
-          amount: typeof income.amount === "number" ? income.amount : 0,
+          plannedAmount: typeof income.plannedAmount === "number" ? income.plannedAmount : 0,
+          reelAmount: typeof income.reelAmount === "number" ? income.reelAmount : 0,
           note: typeof income.note === "string" ? income.note : "",
         }))
       : [],
