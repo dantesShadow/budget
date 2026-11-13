@@ -18,7 +18,8 @@
 			"extensions": [
 				"esbenp.prettier-vscode",
 				"dbaeumer.vscode-eslint",
-				"bradls.vscode-tailwindcss"
+				"bradls.vscode-tailwindcss",
+				"vscode-icons-team.vscode-icons"
 			]
 		}
 	},

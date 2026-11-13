@@ -1,0 +1,59 @@
+{
+  "_id": ObjectId("673b12ef..."),
+  "periodName": "12 au 25 novembre",
+  "startDate": ISODate("2026-11-12T00:00:00Z"),
+  "endDate": ISODate("2026-11-25T23:59:59Z"),
+  "initialBalance": 2853.23,
+  "incomes": [
+    {
+      "source": "Paie Adam",
+      "amount": 0.00,
+      "note": ""
+    },
+    {
+      "source": "Gouvernement",
+      "amount": 700.00,
+      "note": ""
+    },
+    {
+      "source": "Cell papa",
+      "amount": 0.00,
+      "note": ""
+    }
+  ],
+  "expenses": [
+    {
+      "category": "Épicerie",
+      "amount": 750.00,
+      "note": ""
+    },
+    {
+      "category": "Hypothèque",
+      "amount": 736.61,
+      "note": ""
+    },
+    {
+      "category": "Vidéotron",
+      "amount": 0.00,
+      "note": "140 prochaine paie"
+    },
+    {
+      "category": "Électricité",
+      "amount": 321.35,
+      "note": ""
+    },
+    {
+      "category": "Netflix",
+      "amount": 27.00,
+      "note": ""
+    }
+  ],
+  "totals": {
+    "totalIncomes": 700.00,
+    "totalExpenses": 2578.55,
+    "finalBalance": 974.68,
+    "overOrRestant": 275.11
+  },
+  "isClosed": false,
+  "createdAt": ISODate("2026-11-10T10:00:00Z")
+}

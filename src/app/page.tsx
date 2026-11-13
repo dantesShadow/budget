@@ -1,13 +1,13 @@
-import { authenticate } from "@/app/auth/actions";
+import { authenticate } from "@/app/api/auth/[...nextauth]/actions";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 border border-gray-100">
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+    <main className="min-h-screen bg-slate-950 text-slate-100 font-sans flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-slate-900 rounded-xl shadow-md p-8 border border-slate-800">
+        <h1 className="text-2xl font-bold text-center text-slate-100 mb-2">
           Connexion
         </h1>
-        <p className="text-sm text-center text-gray-500 mb-6">
+        <p className="text-sm text-center text-slate-400 mb-6">
           Entrez vos identifiants pour accéder à votre espace.
         </p>
 
@@ -15,7 +15,7 @@ export default function HomePage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-slate-300 mb-1"
             >
               Adresse Email
             </label>
@@ -25,14 +25,14 @@ export default function HomePage() {
               type="email"
               required
               placeholder="nom@exemple.com"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-3 py-2 appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-slate-300 mb-1"
             >
               Mot de passe
             </label>
@@ -42,13 +42,13 @@ export default function HomePage() {
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-3 py-2 appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm transition-colors duration-200 shadow-sm"
+            className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-900/30"
           >
             Se connecter
           </button>
