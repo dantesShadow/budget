@@ -213,7 +213,7 @@ export default function BudgetPostesList({
           <input
             type="number"
             step="0.01"
-            placeholder="Montant planifié"
+            placeholder="Montant"
             value={plannedAmount}
             onChange={handlePlannedAmountChange}
             className="min-w-0 flex-[1] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-200"
