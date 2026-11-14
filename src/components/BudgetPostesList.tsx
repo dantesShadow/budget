@@ -37,9 +37,6 @@ export default function BudgetPostesList({
   const isIncome = collection === "incomes";
   const HeadingIcon = isIncome ? TrendingUp : TrendingDown;
   const accentText = isIncome ? "text-emerald-400" : "text-rose-400";
-  const accentButton = isIncome
-    ? "bg-emerald-600 hover:bg-emerald-500"
-    : "bg-rose-600 hover:bg-rose-500";
   const completedProgress = isIncome ? "bg-emerald-500" : "bg-rose-500";
   const title = isIncome ? "Gains & Entrées" : "Dépenses";
 
@@ -105,10 +102,29 @@ export default function BudgetPostesList({
           const actualAmount = Number(poste.reelAmount ?? 0);
           const isFull = expectedAmount > 0 && actualAmount >= expectedAmount;
           const isPartial = actualAmount > 0 && actualAmount < expectedAmount;
+          const isOverBudget = actualAmount > expectedAmount;
           const progress =
             expectedAmount > 0
               ? Math.min((actualAmount / expectedAmount) * 100, 100)
               : 0;
+          const paidStatusColor = isIncome
+            ? isFull
+              ? accentText
+              : isPartial
+                ? "text-amber-400"
+                : "text-slate-600 hover:text-slate-400"
+            : actualAmount === 0
+              ? "text-slate-600 hover:text-slate-400"
+              : isOverBudget
+                ? "text-rose-400"
+                : "text-emerald-400";
+          const progressColor = isIncome
+            ? isFull
+              ? completedProgress
+              : "bg-amber-400"
+            : isOverBudget
+              ? "bg-rose-500"
+              : "bg-emerald-500";
 
           return (
             <div
@@ -133,7 +149,7 @@ export default function BudgetPostesList({
                         isFull ? 0 : expectedAmount,
                       )
                     }
-                    className={`transition ${isFull ? accentText : isPartial ? "text-amber-400" : "text-slate-600 hover:text-slate-400"}`}
+                    className={`transition ${paidStatusColor}`}
                   >
                     {isFull ? (
                       <CheckCircle2 className="w-5 h-5" />
@@ -149,9 +165,26 @@ export default function BudgetPostesList({
                       >
                         {poste.source}
                       </span>
-                      {isPartial && (
+                      {isIncome && isPartial && (
                         <span className="shrink-0 text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
                           Partiel
+                        </span>
+                      )}
+                      {!isIncome && expectedAmount > 0 && actualAmount > 0 && (
+                        <span
+                          className={`shrink-0 text-xs px-1.5 py-0.5 rounded border ${
+                            isOverBudget
+                              ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                              : actualAmount === expectedAmount
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                          }`}
+                        >
+                          {isOverBudget
+                            ? "Dépassé"
+                            : actualAmount === expectedAmount
+                              ? "Payé"
+                              : `Il reste ${(expectedAmount - actualAmount).toFixed(2)} $`}
                         </span>
                       )}
                     </div>
@@ -176,7 +209,13 @@ export default function BudgetPostesList({
                       parseFloat(event.target.value) || 0,
                     )
                   }
-                  className={`w-12 shrink-0 bg-transparent text-right text-xs font-semibold ${accentText} focus:outline-none`}
+                  className={`w-12 shrink-0 bg-transparent text-right text-xs font-semibold ${
+                    isIncome
+                      ? accentText
+                      : isOverBudget
+                        ? "text-rose-400"
+                        : "text-emerald-400"
+                  } focus:outline-none`}
                 />
                 <span className="ml-1 whitespace-nowrap text-xs text-white">
                   / {expectedAmount.toFixed(2)}$
@@ -195,7 +234,7 @@ export default function BudgetPostesList({
               {expectedAmount > 0 && (
                 <div className="col-span-3 row-start-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-900">
                   <div
-                    className={`h-full transition-all duration-300 ${isFull ? completedProgress : "bg-amber-400"}`}
+                    className={`h-full transition-all duration-300 ${progressColor}`}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -233,7 +272,7 @@ export default function BudgetPostesList({
         </div>
         <button
           type="submit"
-          className={`w-full ${accentButton} text-white font-medium py-2 rounded-xl text-sm flex items-center justify-center space-x-1`}
+          className={`w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 rounded-xl text-sm flex items-center justify-center space-x-1`}
         >
           <Plus className="w-4 h-4" />
           <span>{isIncome ? "Ajouter un revenu" : "Ajouter une dépense"}</span>
