@@ -143,15 +143,22 @@ export default function BudgetPostesList({
                     )}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <span
-                      title={poste.source}
-                      className={`line-clamp-2 text-sm font-medium ${isFull ? "line-through text-slate-500" : "text-slate-200"}`}
-                    >
-                      {poste.source}
-                    </span>
-                    {isPartial && (
-                      <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        Partiel
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span
+                        title={poste.source}
+                        className={`truncate text-sm font-medium ${isFull ? "line-through text-slate-500" : "text-slate-200"}`}
+                      >
+                        {poste.source}
+                      </span>
+                      {isPartial && (
+                        <span className="shrink-0 text-xs px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          Partiel
+                        </span>
+                      )}
+                    </div>
+                    {poste.note && (
+                      <span className="block truncate text-xs italic text-amber-400">
+                        {poste.note}
                       </span>
                     )}
                   </div>
