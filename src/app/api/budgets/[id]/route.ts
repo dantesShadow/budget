@@ -9,49 +9,49 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function parseIncomes(value: unknown): PosteBudgetaire[] | null {
+function parsePostes(value: unknown): PosteBudgetaire[] | null {
   if (!Array.isArray(value)) {
     return null;
   }
 
-  const incomes: PosteBudgetaire[] = [];
+  const postes: PosteBudgetaire[] = [];
   const seenUuids = new Set<string>();
 
-  for (const income of value) {
+  for (const poste of value) {
     if (
-      !isRecord(income) ||
-      typeof income.source !== "string" ||
-      ("uuid" in income &&
-        (typeof income.uuid !== "string" ||
-          !UUID_PATTERN.test(income.uuid))) ||
-      ("plannedAmount" in income &&
-        (typeof income.plannedAmount !== "number" ||
-          !Number.isFinite(income.plannedAmount))) ||
-      ("reelAmount" in income &&
-        (typeof income.reelAmount !== "number" ||
-          !Number.isFinite(income.reelAmount))) ||
-      ("note" in income && typeof income.note !== "string")
+      !isRecord(poste) ||
+      typeof poste.source !== "string" ||
+      ("uuid" in poste &&
+        (typeof poste.uuid !== "string" ||
+          !UUID_PATTERN.test(poste.uuid))) ||
+      ("plannedAmount" in poste &&
+        (typeof poste.plannedAmount !== "number" ||
+          !Number.isFinite(poste.plannedAmount))) ||
+      ("reelAmount" in poste &&
+        (typeof poste.reelAmount !== "number" ||
+          !Number.isFinite(poste.reelAmount))) ||
+      ("note" in poste && typeof poste.note !== "string")
     ) {
       return null;
     }
 
     const uuid =
-      typeof income.uuid === "string" ? income.uuid : crypto.randomUUID();
+      typeof poste.uuid === "string" ? poste.uuid : crypto.randomUUID();
     if (seenUuids.has(uuid)) {
       return null;
     }
     seenUuids.add(uuid);
 
-    incomes.push({
+    postes.push({
       uuid,
-      source: income.source,
-      ...(typeof income.plannedAmount === "number" ? { plannedAmount: income.plannedAmount } : { plannedAmount: 0 }),
-      ...(typeof income.reelAmount === "number" ? { reelAmount: income.reelAmount } : { reelAmount: 0 }),
-      ...(typeof income.note === "string" ? { note: income.note } : { note: "" }),
+      source: poste.source,
+      ...(typeof poste.plannedAmount === "number" ? { plannedAmount: poste.plannedAmount } : { plannedAmount: 0 }),
+      ...(typeof poste.reelAmount === "number" ? { reelAmount: poste.reelAmount } : { reelAmount: 0 }),
+      ...(typeof poste.note === "string" ? { note: poste.note } : { note: "" }),
     });
   }
 
-  return incomes;
+  return postes;
 }
 
 export async function PUT(
@@ -114,7 +114,7 @@ export async function PUT(
   }
 
   if ("incomes" in body) {
-    const incomes = parseIncomes(body.incomes);
+    const incomes = parsePostes(body.incomes);
     if (!incomes) {
       return Response.json(
         { error: "La liste des revenus est invalide." },
@@ -122,6 +122,17 @@ export async function PUT(
       );
     }
     updates.incomes = incomes;
+  }
+
+  if ("expenses" in body) {
+    const expenses = parsePostes(body.expenses);
+    if (!expenses) {
+      return Response.json(
+        { error: "La liste des dépenses est invalide." },
+        { status: 400 }
+      );
+    }
+    updates.expenses = expenses;
   }
 
   if (Object.keys(updates).length === 0) {
@@ -169,6 +180,19 @@ export async function PUT(
           plannedAmount: typeof income.plannedAmount === "number" ? income.plannedAmount : 0,
           reelAmount: typeof income.reelAmount === "number" ? income.reelAmount : 0,
           note: typeof income.note === "string" ? income.note : "",
+        }))
+      : [],
+    expenses: Array.isArray(updatedBudget.expenses)
+      ? updatedBudget.expenses.map((expense) => ({
+          uuid:
+            typeof expense.uuid === "string" &&
+            UUID_PATTERN.test(expense.uuid)
+              ? expense.uuid
+              : crypto.randomUUID(),
+          source: expense.source,
+          plannedAmount: typeof expense.plannedAmount === "number" ? expense.plannedAmount : 0,
+          reelAmount: typeof expense.reelAmount === "number" ? expense.reelAmount : 0,
+          note: typeof expense.note === "string" ? expense.note : "",
         }))
       : [],
   };

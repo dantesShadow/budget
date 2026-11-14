@@ -3,6 +3,7 @@ export interface Budget {
     periodName: string;
     initialBalance?: number;
     incomes: PosteBudgetaire[];
+    expenses: PosteBudgetaire[];
 }
 
 export interface PosteBudgetaire {

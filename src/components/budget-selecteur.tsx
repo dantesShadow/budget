@@ -75,11 +75,40 @@ export default function BudgetSelecteur({
     };
   }, [onBudgetChange]);
 
-  function handleBudgetChange(budgetId: string) {
-    setSelectedBudgetId(budgetId);
-    onBudgetChange?.(
-      budgets.find((budget) => budget.id === budgetId) ?? budgets[0]
-    );
+  async function handleBudgetChange(budgetId: string) {
+    if (budgetId === selectedBudgetId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/budgets");
+      if (!response.ok) {
+        throw new Error(`Le chargement des budgets a échoué (${response.status}).`);
+      }
+
+      const data: unknown = await response.json();
+      if (!isBudgetList(data)) {
+        throw new Error("La réponse de l’API des budgets est invalide.");
+      }
+
+      const selectedBudget = data.find((budget) => budget.id === budgetId);
+      if (!selectedBudget) {
+        throw new Error("Le budget sélectionné est introuvable.");
+      }
+
+      setBudgets(data);
+      setSelectedBudgetId(budgetId);
+      onBudgetChange?.(selectedBudget);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Une erreur est survenue lors du chargement des budgets."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleBudgetCreated(budget: Budget) {
@@ -91,17 +120,18 @@ export default function BudgetSelecteur({
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-        <div className="flex items-center space-x-3 w-full sm:w-auto">
-          <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
-            <Calendar className="w-5 h-5" />
-          </div>
-          <div className="relative flex-1 sm:flex-none">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-full">
+          <div className="flex items-center gap-3 w-full md:flex-1 min-w-0">
+            <div className="shrink-0 p-2 bg-emerald-500/10 text-emerald-400 rounded-xl">
+              <Calendar className="w-5 h-5" />
+            </div>
+            <div className="relative flex-1 min-w-0">
             <select
               value={selectedBudgetId}
               onChange={(event) => handleBudgetChange(event.target.value)}
               disabled={isLoading || budgets.length === 0}
-              className="w-full sm:w-64 appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full appearance-none bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-200 cursor-pointer pr-10 focus:outline-none focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {budgets.length === 0 && (
                 <option value="">
@@ -115,12 +145,13 @@ export default function BudgetSelecteur({
               ))}
             </select>
             <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-900/30"
+            className="w-full md:w-auto md:ml-auto flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-900/30"
           >
             <Plus className="w-4 h-4" />
             <span>Nouvelle Période</span>
