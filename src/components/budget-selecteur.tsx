@@ -75,11 +75,40 @@ export default function BudgetSelecteur({
     };
   }, [onBudgetChange]);
 
-  function handleBudgetChange(budgetId: string) {
-    setSelectedBudgetId(budgetId);
-    onBudgetChange?.(
-      budgets.find((budget) => budget.id === budgetId) ?? budgets[0]
-    );
+  async function handleBudgetChange(budgetId: string) {
+    if (budgetId === selectedBudgetId) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/budgets");
+      if (!response.ok) {
+        throw new Error(`Le chargement des budgets a échoué (${response.status}).`);
+      }
+
+      const data: unknown = await response.json();
+      if (!isBudgetList(data)) {
+        throw new Error("La réponse de l’API des budgets est invalide.");
+      }
+
+      const selectedBudget = data.find((budget) => budget.id === budgetId);
+      if (!selectedBudget) {
+        throw new Error("Le budget sélectionné est introuvable.");
+      }
+
+      setBudgets(data);
+      setSelectedBudgetId(budgetId);
+      onBudgetChange?.(selectedBudget);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Une erreur est survenue lors du chargement des budgets."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function handleBudgetCreated(budget: Budget) {
