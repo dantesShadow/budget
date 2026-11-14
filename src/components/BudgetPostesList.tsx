@@ -93,7 +93,7 @@ export default function BudgetPostesList({
           <span className={`text-sm font-semibold ${accentText}`}>
             {totalActual.toFixed(2)} $
           </span>
-          <span className="text-xs text-slate-500 block">
+          <span className="text-xs text-white block">
             sur {totalPlanned.toFixed(2)} $
           </span>
         </div>
@@ -173,7 +173,7 @@ export default function BudgetPostesList({
                       }
                       className={`w-12 shrink-0 bg-transparent text-right text-xs font-semibold ${accentText} focus:outline-none`}
                     />
-                    <span className="ml-1 whitespace-nowrap text-xs text-slate-500">
+                    <span className="ml-1 whitespace-nowrap text-xs text-white">
                       / {expectedAmount.toFixed(2)}$
                     </span>
                   </div>
