@@ -113,10 +113,9 @@ export default function BudgetPostesList({
           return (
             <div
               key={poste.uuid}
-              className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-2"
+              className="bg-slate-950 p-3 rounded-xl border border-slate-800 grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2"
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 flex-1 items-center space-x-2.5">
+              <div className="col-start-1 row-start-1 flex min-w-0 items-center space-x-2.5">
                   <button
                     type="button"
                     title={
@@ -162,41 +161,39 @@ export default function BudgetPostesList({
                       </span>
                     )}
                   </div>
-                </div>
-
-                <div className="flex shrink-0 items-center space-x-2">
-                  <div className="flex h-8 shrink-0 items-center whitespace-nowrap bg-slate-900 border border-slate-800 rounded-lg px-2 py-1">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={poste.reelAmount === 0 ? "" : poste.reelAmount}
-                      placeholder="0.00"
-                      onChange={(event) =>
-                        onUpdateReelAmount(
-                          poste.uuid,
-                          parseFloat(event.target.value) || 0,
-                        )
-                      }
-                      className={`w-12 shrink-0 bg-transparent text-right text-xs font-semibold ${accentText} focus:outline-none`}
-                    />
-                    <span className="ml-1 whitespace-nowrap text-xs text-white">
-                      / {expectedAmount.toFixed(2)}$
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    title={isIncome ? "Supprimer le revenu" : "Supprimer la dépense"}
-                    onClick={() => onDelete(poste.uuid)}
-                    className="text-slate-600 hover:text-rose-400"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
 
+              <div className="col-span-3 row-start-3 flex h-8 w-full items-center justify-end whitespace-nowrap rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 sm:col-span-1 sm:col-start-2 sm:row-start-1 sm:w-auto">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={poste.reelAmount === 0 ? "" : poste.reelAmount}
+                  placeholder="0.00"
+                  onChange={(event) =>
+                    onUpdateReelAmount(
+                      poste.uuid,
+                      parseFloat(event.target.value) || 0,
+                    )
+                  }
+                  className={`w-12 shrink-0 bg-transparent text-right text-xs font-semibold ${accentText} focus:outline-none`}
+                />
+                <span className="ml-1 whitespace-nowrap text-xs text-white">
+                  / {expectedAmount.toFixed(2)}$
+                </span>
+              </div>
+
+              <button
+                type="button"
+                title={isIncome ? "Supprimer le revenu" : "Supprimer la dépense"}
+                onClick={() => onDelete(poste.uuid)}
+                className="col-start-3 row-start-1 text-slate-600 hover:text-rose-400"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+
               {expectedAmount > 0 && (
-                <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                <div className="col-span-3 row-start-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-900">
                   <div
                     className={`h-full transition-all duration-300 ${isFull ? completedProgress : "bg-amber-400"}`}
                     style={{ width: `${progress}%` }}
