@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useRef,
   useState,
   type ChangeEventHandler,
   type SubmitEventHandler,
@@ -31,6 +32,7 @@ export default function BudgetPostesList({
   onUpdateReelAmount,
   onDelete,
 }: BudgetPostesListProps) {
+  const sourceInputRef = useRef<HTMLInputElement>(null);
   const [source, setSource] = useState("");
   const [plannedAmount, setPlannedAmount] = useState("");
   const [note, setNote] = useState("");
@@ -54,6 +56,7 @@ export default function BudgetPostesList({
     setSource("");
     setPlannedAmount("");
     setNote("");
+    sourceInputRef.current?.focus();
   };
 
   const handleSourceChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -247,6 +250,7 @@ export default function BudgetPostesList({
       <form onSubmit={handleSubmit} className="pt-3 border-t border-slate-800 space-y-2">
         <div className="flex gap-2">
           <input
+            ref={sourceInputRef}
             type="text"
             placeholder={isIncome ? "Source" : "Description"}
             value={source}
