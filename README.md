@@ -34,6 +34,6 @@ Ouvrir [http://localhost:3000](http://localhost:3000) avec un browser pour voir 
 # Fichier d'environnement
 Ajouter un fichier .env.local avec les information suivante : 
 - MONGODB_URI
-- AUTH_SECRET (peux être générer par npx auth secret)
+- AUTH_SECRET (peux être générer par npx auth secret ou openssl rand -base64)
 - NEXTAUTH_URL (exemple http://localhost:3000)
 
