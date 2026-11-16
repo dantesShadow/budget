@@ -74,7 +74,13 @@ export async function GET() {
           id: budget._id.toString(),
           periodName: budget.periodName,
           initialBalance:
-            typeof budget.initialBalance === "number" ? budget.initialBalance : 0,
+            typeof budget.initialBalance === "number" && Number.isFinite(budget.initialBalance)
+              ? budget.initialBalance
+              : 0,
+          ...(typeof budget.accountBalance === "number" &&
+          Number.isFinite(budget.accountBalance)
+            ? { accountBalance: budget.accountBalance }
+            : {}),
           incomes,
           expenses,
         } satisfies Budget;
@@ -121,11 +127,12 @@ export async function POST(request: Request) {
   const database = await connectToDatabase();
   const result = await database.connection
     .collection("budgets")
-    .insertOne({ periodName, initialBalance });
+    .insertOne({ periodName, initialBalance, accountBalance: initialBalance });
   const budget: Budget = {
     id: result.insertedId.toString(),
     periodName,
     initialBalance,
+    accountBalance: initialBalance,
     incomes: [],
     expenses: [],
   };

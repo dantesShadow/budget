@@ -113,6 +113,19 @@ export async function PUT(
     updates.initialBalance = body.initialBalance;
   }
 
+  if ("accountBalance" in body) {
+    if (
+      typeof body.accountBalance !== "number" ||
+      !Number.isFinite(body.accountBalance)
+    ) {
+      return Response.json(
+        { error: "Le solde actuel du compte est invalide." },
+        { status: 400 }
+      );
+    }
+    updates.accountBalance = body.accountBalance;
+  }
+
   if ("incomes" in body) {
     const incomes = parsePostes(body.incomes);
     if (!incomes) {
@@ -166,9 +179,14 @@ export async function PUT(
     id: updatedBudget._id.toString(),
     periodName: updatedBudget.periodName,
     initialBalance:
-      typeof updatedBudget.initialBalance === "number"
+      typeof updatedBudget.initialBalance === "number" &&
+      Number.isFinite(updatedBudget.initialBalance)
         ? updatedBudget.initialBalance
         : 0,
+    ...(typeof updatedBudget.accountBalance === "number" &&
+    Number.isFinite(updatedBudget.accountBalance)
+      ? { accountBalance: updatedBudget.accountBalance }
+      : {}),
     incomes: Array.isArray(updatedBudget.incomes)
       ? updatedBudget.incomes.map((income) => ({
           uuid:

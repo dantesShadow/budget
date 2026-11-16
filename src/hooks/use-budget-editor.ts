@@ -22,25 +22,14 @@ export default function useBudgetEditor() {
     setBudget(nextBudget);
   }, []);
 
-  const updatePostes = useCallback(
-    (
-      collection: BudgetCollection,
-      update: (postes: PosteBudgetaire[]) => PosteBudgetaire[],
-    ) => {
-      const currentBudget = budgetRef.current;
-      if (!currentBudget) return;
-
-      const postes = update(currentBudget[collection]);
-      const updatedBudget: Budget = { ...currentBudget, [collection]: postes };
-      budgetRef.current = updatedBudget;
-      setBudget(updatedBudget);
-
+  const queueSave = useCallback(
+    (budgetId: string, updates: Record<string, unknown>) => {
       saveQueue.current = saveQueue.current
         .then(async () => {
-          const response = await fetch(`/api/budgets/${currentBudget.id}`, {
+          const response = await fetch(`/api/budgets/${budgetId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ [collection]: postes }),
+            body: JSON.stringify(updates),
           });
 
           if (!response.ok) {
@@ -62,6 +51,77 @@ export default function useBudgetEditor() {
     [],
   );
 
+  const updatePostes = useCallback(
+    (
+      collection: BudgetCollection,
+      update: (postes: PosteBudgetaire[]) => PosteBudgetaire[],
+      accountBalanceDelta?: number,
+    ) => {
+      const currentBudget = budgetRef.current;
+      if (!currentBudget) return;
+
+      const postes = update(currentBudget[collection]);
+      const updates: Record<string, unknown> = { [collection]: postes };
+      const accountBalance =
+        accountBalanceDelta !== undefined &&
+        typeof currentBudget.accountBalance === "number" &&
+        Number.isFinite(currentBudget.accountBalance)
+          ? currentBudget.accountBalance + accountBalanceDelta
+          : undefined;
+
+      if (accountBalance !== undefined) {
+        updates.accountBalance = accountBalance;
+      }
+
+      const updatedBudget: Budget = { ...currentBudget, ...updates };
+      budgetRef.current = updatedBudget;
+      setBudget(updatedBudget);
+      queueSave(currentBudget.id, updates);
+    },
+    [queueSave],
+  );
+
+  const updateAccountBalance = useCallback(
+    (accountBalance: number) => {
+      const currentBudget = budgetRef.current;
+      if (!currentBudget) return;
+
+      const updatedBudget: Budget = { ...currentBudget, accountBalance };
+      budgetRef.current = updatedBudget;
+      setBudget(updatedBudget);
+      queueSave(currentBudget.id, { accountBalance });
+    },
+    [queueSave],
+  );
+
+  const updateReelAmount = useCallback(
+    (collection: BudgetCollection, uuid: string, amount: number) => {
+      const currentPoste = budgetRef.current?.[collection].find(
+        (poste) => poste.uuid === uuid,
+      );
+      const previousAmount =
+        typeof currentPoste?.reelAmount === "number" &&
+        Number.isFinite(currentPoste.reelAmount)
+          ? currentPoste.reelAmount
+          : 0;
+      const accountBalanceDelta =
+        currentPoste && Number.isFinite(amount)
+          ? (collection === "incomes" ? 1 : -1) *
+            (amount - previousAmount)
+          : undefined;
+
+      updatePostes(
+        collection,
+        (postes) =>
+          postes.map((poste) =>
+            poste.uuid === uuid ? { ...poste, reelAmount: amount } : poste,
+          ),
+        accountBalanceDelta,
+      );
+    },
+    [updatePostes],
+  );
+
   const createPosteActions = (collection: BudgetCollection): PosteActions => ({
     add: (poste) =>
       updatePostes(collection, (postes) => [...postes, poste]),
@@ -70,17 +130,14 @@ export default function useBudgetEditor() {
         postes.filter((poste) => poste.uuid !== uuid),
       ),
     updateReelAmount: (uuid, amount) =>
-      updatePostes(collection, (postes) =>
-        postes.map((poste) =>
-          poste.uuid === uuid ? { ...poste, reelAmount: amount } : poste,
-        ),
-      ),
+      updateReelAmount(collection, uuid, amount),
   });
 
   return {
     budget,
     saveError,
     handleBudgetChange,
+    updateAccountBalance,
     incomes: createPosteActions("incomes"),
     expenses: createPosteActions("expenses"),
   };
