@@ -37,3 +37,18 @@ Ajouter un fichier .env.local avec les information suivante :
 - AUTH_SECRET (peux être générer par npx auth secret ou openssl rand -base64)
 - NEXTAUTH_URL (exemple http://localhost:3000)
 
+## CI et déploiement sur Vercel
+
+Le workflow GitHub Actions `.github/workflows/ci.yml` exécute le lint, les tests et
+le build sur chaque push et chaque pull request. Le build utilise des variables
+de test; aucun secret de production ni accès à MongoDB n'est nécessaire dans GitHub.
+
+Pour activer les déploiements automatiques, importer ce dépôt dans Vercel et
+connecter le projet à GitHub. Vercel détecte Next.js et crée des déploiements de
+prévisualisation pour les pull requests, puis un déploiement de production pour la
+branche configurée comme branche de production. Ajouter `MONGODB_URI` et
+`AUTH_SECRET` dans les variables d'environnement du projet Vercel, pour les
+environnements Preview et Production. `NEXTAUTH_URL` n'est généralement pas
+nécessaire sur Vercel; la définir seulement pour imposer une URL d'authentification
+fixe.
+
