@@ -55,15 +55,28 @@ export default function useBudgetEditor() {
     (
       collection: BudgetCollection,
       update: (postes: PosteBudgetaire[]) => PosteBudgetaire[],
+      accountBalanceDelta?: number,
     ) => {
       const currentBudget = budgetRef.current;
       if (!currentBudget) return;
 
       const postes = update(currentBudget[collection]);
-      const updatedBudget: Budget = { ...currentBudget, [collection]: postes };
+      const updates: Record<string, unknown> = { [collection]: postes };
+      const accountBalance =
+        accountBalanceDelta !== undefined &&
+        typeof currentBudget.accountBalance === "number" &&
+        Number.isFinite(currentBudget.accountBalance)
+          ? currentBudget.accountBalance + accountBalanceDelta
+          : undefined;
+
+      if (accountBalance !== undefined) {
+        updates.accountBalance = accountBalance;
+      }
+
+      const updatedBudget: Budget = { ...currentBudget, ...updates };
       budgetRef.current = updatedBudget;
       setBudget(updatedBudget);
-      queueSave(currentBudget.id, { [collection]: postes });
+      queueSave(currentBudget.id, updates);
     },
     [queueSave],
   );
@@ -81,6 +94,34 @@ export default function useBudgetEditor() {
     [queueSave],
   );
 
+  const updateReelAmount = useCallback(
+    (collection: BudgetCollection, uuid: string, amount: number) => {
+      const currentPoste = budgetRef.current?.[collection].find(
+        (poste) => poste.uuid === uuid,
+      );
+      const previousAmount =
+        typeof currentPoste?.reelAmount === "number" &&
+        Number.isFinite(currentPoste.reelAmount)
+          ? currentPoste.reelAmount
+          : 0;
+      const accountBalanceDelta =
+        currentPoste && Number.isFinite(amount)
+          ? (collection === "incomes" ? 1 : -1) *
+            (amount - previousAmount)
+          : undefined;
+
+      updatePostes(
+        collection,
+        (postes) =>
+          postes.map((poste) =>
+            poste.uuid === uuid ? { ...poste, reelAmount: amount } : poste,
+          ),
+        accountBalanceDelta,
+      );
+    },
+    [updatePostes],
+  );
+
   const createPosteActions = (collection: BudgetCollection): PosteActions => ({
     add: (poste) =>
       updatePostes(collection, (postes) => [...postes, poste]),
@@ -89,11 +130,7 @@ export default function useBudgetEditor() {
         postes.filter((poste) => poste.uuid !== uuid),
       ),
     updateReelAmount: (uuid, amount) =>
-      updatePostes(collection, (postes) =>
-        postes.map((poste) =>
-          poste.uuid === uuid ? { ...poste, reelAmount: amount } : poste,
-        ),
-      ),
+      updateReelAmount(collection, uuid, amount),
   });
 
   return {
