@@ -22,25 +22,14 @@ export default function useBudgetEditor() {
     setBudget(nextBudget);
   }, []);
 
-  const updatePostes = useCallback(
-    (
-      collection: BudgetCollection,
-      update: (postes: PosteBudgetaire[]) => PosteBudgetaire[],
-    ) => {
-      const currentBudget = budgetRef.current;
-      if (!currentBudget) return;
-
-      const postes = update(currentBudget[collection]);
-      const updatedBudget: Budget = { ...currentBudget, [collection]: postes };
-      budgetRef.current = updatedBudget;
-      setBudget(updatedBudget);
-
+  const queueSave = useCallback(
+    (budgetId: string, updates: Record<string, unknown>) => {
       saveQueue.current = saveQueue.current
         .then(async () => {
-          const response = await fetch(`/api/budgets/${currentBudget.id}`, {
+          const response = await fetch(`/api/budgets/${budgetId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ [collection]: postes }),
+            body: JSON.stringify(updates),
           });
 
           if (!response.ok) {
@@ -62,6 +51,36 @@ export default function useBudgetEditor() {
     [],
   );
 
+  const updatePostes = useCallback(
+    (
+      collection: BudgetCollection,
+      update: (postes: PosteBudgetaire[]) => PosteBudgetaire[],
+    ) => {
+      const currentBudget = budgetRef.current;
+      if (!currentBudget) return;
+
+      const postes = update(currentBudget[collection]);
+      const updatedBudget: Budget = { ...currentBudget, [collection]: postes };
+      budgetRef.current = updatedBudget;
+      setBudget(updatedBudget);
+      queueSave(currentBudget.id, { [collection]: postes });
+    },
+    [queueSave],
+  );
+
+  const updateAccountBalance = useCallback(
+    (accountBalance: number) => {
+      const currentBudget = budgetRef.current;
+      if (!currentBudget) return;
+
+      const updatedBudget: Budget = { ...currentBudget, accountBalance };
+      budgetRef.current = updatedBudget;
+      setBudget(updatedBudget);
+      queueSave(currentBudget.id, { accountBalance });
+    },
+    [queueSave],
+  );
+
   const createPosteActions = (collection: BudgetCollection): PosteActions => ({
     add: (poste) =>
       updatePostes(collection, (postes) => [...postes, poste]),
@@ -81,6 +100,7 @@ export default function useBudgetEditor() {
     budget,
     saveError,
     handleBudgetChange,
+    updateAccountBalance,
     incomes: createPosteActions("incomes"),
     expenses: createPosteActions("expenses"),
   };
